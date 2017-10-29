@@ -1,0 +1,58 @@
+version: '3.4'
+services:
+
+  docker-nswl:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: lukewpatterson/nswl:11
+
+  my-nswl:
+    depends_on:
+      - docker-nswl # make sure the parent image is built first
+    build:
+      context: .
+      dockerfile: Dockerfile-consumer
+    volumes:
+      - ./logs/:/logs/
+    environment:
+      NS_IPS: 172.16.0.10
+    networks:
+      nswl_network:
+
+  cpx:
+    image: store/citrix/netscalercpx:11.1-53.11@sha256:33f63911e478e2de64fcf1bb0c32d604fafe94923f5b5aa9f15fd9e00dc9cb51
+    volumes:
+     # set to readonly so /var/netscaler/bins/docker_startup.sh doesn't recreate it and wipe out our customizations
+     - ./nsboot.custom.conf:/cpx/nsconfig/nsboot.conf:ro  
+    ports:
+      - "8000:8000"
+    environment:
+      EULA: "yes"
+      NS_ABORT_ON_FAILED_REGISTRATION: "false"
+    networks:
+      nswl_network:
+        ipv4_address: 172.16.0.10
+    privileged: true
+  service_1:
+    image: jwilder/whoami@sha256:63c36b1b0e855b683daba4f3731692bfdad9dc4b12660efc537e94be441688b5
+    hostname: service_1
+    ports:
+      - "8001:8000"
+    networks:
+      nswl_network:
+        ipv4_address: 172.16.0.11
+  service_2:
+    image: jwilder/whoami@sha256:63c36b1b0e855b683daba4f3731692bfdad9dc4b12660efc537e94be441688b5
+    hostname: service_2
+    ports:
+      - "8002:8000"
+    networks:
+      nswl_network:
+        ipv4_address: 172.16.0.12
+
+networks:
+  nswl_network:
+    ipam:
+      config:
+        - subnet: 172.16.0.0/24

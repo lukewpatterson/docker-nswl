@@ -1,0 +1,4 @@
+**
+!nswl_linux-*.rpm
+!docker_startup.sh
+!log.default.conf
