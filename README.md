@@ -8,7 +8,7 @@ Docker Image of [NetScaler Web Logging (NSWL) Client](https://docs.citrix.com/en
 1. [Download](https://docs.citrix.com/en-us/netscaler/11/system/web-server-logging/installing-netscaler-web-logging-client.html) the Linux NSWL Client package for your NetScaler version.  To prevent you from using NSWL for fun and from living too far into the present, you need an account to download.
 
 1. Place the downloaded client package file alongside a `Dockerfile` containing:
-    ```
+    ```Dockerfile
     FROM lukewpatterson/nswl:11
     ```
     The client package file name must match the pattern `nswl_linux-<VERSION>.rpm`.  The version used in testing was `nswl_linux-11.0-66.11.rpm`.
@@ -72,10 +72,9 @@ bind lb vserver vserver_1 service_2
 enable ns feature WL
 ```
 2. Create a `docker-compose.yml` file with this content: 
-```
+```yaml
 version: '3.4'
 services:
-
   my-nswl:
     image: <YOUR_CUSTOM_IMAGE>
     volumes:
@@ -84,7 +83,6 @@ services:
       NS_IPS: 172.16.0.10
     networks:
       nswl_network:
-
   cpx:
     image: store/citrix/netscalercpx:11.1-53.11@sha256:33f63911e478e2de64fcf1bb0c32d604fafe94923f5b5aa9f15fd9e00dc9cb51
     volumes:
@@ -115,7 +113,6 @@ services:
     networks:
       nswl_network:
         ipv4_address: 172.16.0.12
-
 networks:
   nswl_network:
     ipam:
@@ -124,7 +121,7 @@ networks:
 ```
 
 3. Run `docker-compose up`.  Give it a little while to start up.  You should see something like this when it's ready:
-```
+```shell
 cpx_1          ...
 cpx_1          | Starting Monit 5.16 daemon
 ```
@@ -148,7 +145,7 @@ If you use [Logstash](https://www.elastic.co/products/logstash), you might find 
 
 `docker-compose.yml` file:
 
-```
+```yaml
 version: '3.4'
 services:
   nswl:
